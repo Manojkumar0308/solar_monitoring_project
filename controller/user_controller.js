@@ -58,7 +58,7 @@ const userLogin = async (req, res) => {
     if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
 
     try {
-        const [rows] = await db.query('SELECT id, email, password FROM user WHERE email = ?', [email]);
+        const [rows] = await db.query('SELECT * FROM user WHERE email = ?', [email]); // Selecting all user info
         if (rows.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
 
         const user = rows[0];
@@ -66,7 +66,11 @@ const userLogin = async (req, res) => {
         if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
 
         const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        return res.status(200).json({ message: 'Login successful', token });
+        
+        // Remove password from user object before sending response
+        delete user.password;
+
+        return res.status(200).json({ message: 'Login successful', token, user });
     } catch (error) {
         console.error('Error logging in:', error);
         return res.status(500).json({ error: 'Error logging in' });
