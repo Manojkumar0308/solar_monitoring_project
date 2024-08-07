@@ -63,14 +63,21 @@ const userLogin = async (req, res) => {
 
         const user = rows[0];
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+            
+           
 
         const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        
+        console.log('userId',user.id)
+        req.app.io.emit('userLoggedIn',  user.id);
         // Remove password from user object before sending response
         delete user.password;
+       
 
         return res.status(200).json({ message: 'Login successful', token, user });
+       
     } catch (error) {
         console.error('Error logging in:', error);
         return res.status(500).json({ error: 'Error logging in' });
