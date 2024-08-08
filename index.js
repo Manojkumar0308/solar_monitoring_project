@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/users',require('./routes/user_route'));
 app.use('/api/sites',require('./routes/sites_routes'));
 app.use('/api/notification',require('./routes/admin/send_notification_route'));
-
+app.use('/api/sensors',require('./routes/sensorData_routes'));
 
 //socket connection 
 initSocket(server);

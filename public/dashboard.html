@@ -85,6 +85,31 @@
     .logout:hover {
       background: #e60000;
     }
+    .sensor-data {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      max-width: 800px;
+    }
+    .data-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 180px;
+      text-align: center;
+    }
+    .data-card h3 {
+      margin: 0;
+      font-size: 20px;
+      color: #6a11cb;
+    }
+    .data-card p {
+      font-size: 18px;
+      margin: 5px 0;
+    }
   </style>
 </head>
 <body>
@@ -100,9 +125,25 @@
   </div>
   <div class="content">
     <div class="welcome" id="welcomeMessage"></div>
-    <div class="tabs" id="tabsContent">
-      <!-- Dynamic content will be inserted here -->
+    <div class="sensor-data">
+      <div class="data-card">
+        <h3>Temperature</h3>
+        <p id="temperature">-- °C</p>
+      </div>
+      <div class="data-card">
+        <h3>Humidity</h3>
+        <p id="humidity">-- %</p>
+      </div>
+      <div class="data-card">
+        <h3>Current</h3>
+        <p id="current">-- A</p>
+      </div>
+      <div class="data-card">
+        <h3>Voltage</h3>
+        <p id="voltage">-- V</p>
+      </div>
     </div>
+    <div id="tabsContent"></div> <!-- Add this line -->
   </div>
 
   <!-- Include Font Awesome for icons -->
@@ -111,6 +152,8 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <script>
+    const socket = io();
+    const userId = localStorage.getItem('userId');
     document.addEventListener('DOMContentLoaded', () => {
       const email = localStorage.getItem('userEmail');
       document.getElementById('welcomeMessage').textContent = `Welcome, ${email}`;
@@ -136,7 +179,17 @@
       window.location.href = 'index.html'; // Redirect to login page
     }
 
-   
+    // Handle real-time sensor data updates
+    
+    socket.on('sendSensorData', (data) => {
+        if(userId==data.userId){
+        document.getElementById('temperature').textContent = `${data.temperature} °C`;
+        document.getElementById('humidity').textContent = `${data.humidity} %`;
+        document.getElementById('current').textContent = `${data.current} A`;
+        document.getElementById('voltage').textContent = `${data.voltage} V`;
+        }
+     
+    });
   </script>
 </body>
 </html>

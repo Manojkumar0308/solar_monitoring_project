@@ -1,7 +1,7 @@
 
 //To access database 
 const db = require('../config/db');
-const axios = require('axios');
+
 //add new sites
 const addSites = async (req, res) => {
     try {

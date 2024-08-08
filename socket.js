@@ -25,4 +25,10 @@ const emitNotification = (data) =>{
     }
 }
 
-module.exports = { initSocket, emitLogin,emitNotification };
+const emitSensorData = (data) => {
+  if(io){
+    io.emit('sendSensorData',data)
+  }
+}
+
+module.exports = { initSocket, emitLogin,emitNotification,emitSensorData };
