@@ -123,7 +123,7 @@
       if (tab === 'dashboard') {
         tabsContent.innerHTML = '<h2>Dashboard Content</h2>';
       } else if (tab === 'notifications') {
-        tabsContent.innerHTML = '<h2>Notifications Content</h2>';
+        window.location.href = 'notifications.html'; // Redirect to notifications page
       } else if (tab === 'complaints') {
         tabsContent.innerHTML = '<h2>Complaints Content</h2>';
       }
@@ -136,10 +136,7 @@
       window.location.href = 'index.html'; // Redirect to login page
     }
 
-    const socket = io();
-    socket.on('notification', (data) => {
-      alert('New notification: ' + data.message);
-    });
+   
   </script>
 </body>
 </html>

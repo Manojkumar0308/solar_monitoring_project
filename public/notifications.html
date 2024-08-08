@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <style>
+    #messages {
+      margin-top: 20px;
+    }
+    .message-item {
+      border: 1px solid #ddd;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome, <span id="userEmail"></span></h1>
+  <p>Email: <span id="userEmail"></span></p>
+  <p>User ID: <span id="userId"></span></p>
+
+  <div id="messages">
+    <h2>Notifications:</h2>
+    <ul id="messageList"></ul>
+  </div>
+
+  <!-- Include Socket.io client library -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    
+    const userId = localStorage.getItem('userId');
+
+    // Retrieve email from query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    // const userid = urlParams.get('userId')
+    document.querySelector('#userEmail').textContent = email;
+
+    // Connect to Socket.io
+    const socket = io();
+ // Function to display data from localStorage
+ function displayData() {
+      // Retrieve data from localStorage
+      const email = localStorage.getItem('email');
+      const userId = localStorage.getItem('userId');
+
+      // Display the data in the HTML
+      document.getElementById('userEmail').textContent = email ? email : 'No email found';
+      document.getElementById('userId').textContent = userId ? userId : 'No user ID found';
+    }
+
+    // Call the function to display data when the page loads
+    window.onload = displayData;
+    // Handle incoming notifications
+
+    console.log('user id:', userId);
+    socket.on('notification', (data) => {
+    //   console.log(`Received message: ${data.message}`); // Print the received message to console
+    
+    if(userId==data.userId){
+      console.log(`Received message: ${data.message}`); 
+      // Print the received message to console
+      // console.log(localStorage.getItem('userId'));
+      alert(data.message);
+        const messageList = document.querySelector('#messageList');
+        const messageItem = document.createElement('li');
+        messageItem.className = 'message-item';
+        messageItem.textContent = `User ${data.userId}: ${data.message}`;
+        messageList.appendChild(messageItem);
+ 
+    }
+   
+    });
+  </script>
+</body>
+</html>

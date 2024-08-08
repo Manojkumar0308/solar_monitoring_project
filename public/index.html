@@ -202,7 +202,7 @@
   <!-- Previous login page HTML and CSS code remains unchanged -->
 
 <script>
-  const socket = io();
+  // const socket = io();
 
   // Handle successful login
   async function fetchData() {
@@ -225,7 +225,7 @@
       if (response.ok) {
         localStorage.setItem('userId', JSON.stringify(data.user.id));
         localStorage.setItem('userEmail', email);
-        socket.connect();
+        // socket.connect();
         alert('Login successful');
         errorMessage.style.display = 'none';
         window.location.href = 'dashboard.html'; // Redirect to dashboard
@@ -242,9 +242,9 @@
     }
   }
 
-  socket.on('login', (data) => {
-    console.log('User logged in:', data);
-  });
+  // socket.on('login', (data) => {
+  //   console.log('User logged in:', data);
+  // });
 </script>
 
 </body>

@@ -19,4 +19,10 @@ const emitLogin = (data) => {
   }
 };
 
-module.exports = { initSocket, emitLogin };
+const emitNotification = (data) =>{
+    if(io){
+        io.emit('notification',data);
+    }
+}
+
+module.exports = { initSocket, emitLogin,emitNotification };

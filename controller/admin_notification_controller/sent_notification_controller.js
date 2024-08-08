@@ -1,4 +1,5 @@
 const db = require('../../config/db');
+const {emitNotification} = require('../../socket')
 const sendNotification = async (req, res) => {
     const { title, message, email } = req.body;
     const sendingTime = new Date();
@@ -18,7 +19,12 @@ const sendNotification = async (req, res) => {
         // Step 2: Send notifications to the user IDs
         for (const userId of userIds) {
             // Emit notification to the user
-           
+            emitNotification({
+                userId,
+                title,
+                message,
+                sendingTime
+              });
 
             // Save notification to the database
             const insertQuery = `INSERT INTO notifications (title, message, userId, sendingTime) VALUES (?, ?, ?, ?)`;
