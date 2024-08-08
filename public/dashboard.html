@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      color: #333;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    .navbar .brand {
+      font-size: 24px;
+      font-weight: bold;
+      color: #6a11cb;
+    }
+    .navbar .menu {
+      display: flex;
+      gap: 20px;
+    }
+    .navbar .menu a {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      padding: 10px 20px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .navbar .menu a:hover {
+      background: #6a11cb;
+      color: #fff;
+      border-radius: 20px;
+    }
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .welcome {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+    .tabs {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .tabs button {
+      padding: 10px 20px;
+      background: #6a11cb;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .tabs button:hover {
+      background: #2575fc;
+    }
+    .logout {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #ff4d4d;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .logout:hover {
+      background: #e60000;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="brand">Dashboard</div>
+    <div class="menu">
+      <a href="#" onclick="showTab('dashboard')">Dashboard</a>
+      <a href="#" onclick="showTab('notifications')">Notifications</a>
+      <a href="#" onclick="showTab('complaints')">Complaints</a>
+      <i class="fas fa-bell"></i>
+      <button class="logout" onclick="logout()">Logout</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="welcome" id="welcomeMessage"></div>
+    <div class="tabs" id="tabsContent">
+      <!-- Dynamic content will be inserted here -->
+    </div>
+  </div>
+
+  <!-- Include Font Awesome for icons -->
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <!-- Include Socket.io client library -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const email = localStorage.getItem('userEmail');
+      document.getElementById('welcomeMessage').textContent = `Welcome, ${email}`;
+      showTab('dashboard');
+    });
+
+    function showTab(tab) {
+      const tabsContent = document.getElementById('tabsContent');
+      tabsContent.innerHTML = '';
+      if (tab === 'dashboard') {
+        tabsContent.innerHTML = '<h2>Dashboard Content</h2>';
+      } else if (tab === 'notifications') {
+        tabsContent.innerHTML = '<h2>Notifications Content</h2>';
+      } else if (tab === 'complaints') {
+        tabsContent.innerHTML = '<h2>Complaints Content</h2>';
+      }
+    }
+
+    function logout() {
+      socket.disconnect();  // Disconnect from the Socket.io server
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userEmail');
+      window.location.href = 'index.html'; // Redirect to login page
+    }
+
+    const socket = io();
+    socket.on('notification', (data) => {
+      alert('New notification: ' + data.message);
+    });
+  </script>
+</body>
+</html>

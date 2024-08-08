@@ -11,8 +11,9 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
-const io = socketIo(server);
-app.io = io;
+const { initSocket } = require('./socket');
+// const io = socketIo(server);
+// app.io = io;
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
@@ -27,19 +28,7 @@ app.use('/api/notification',require('./routes/admin/send_notification_route'));
 
 
 //socket connection 
-io.on('connection', (socket) => {
-    console.log('New client connected');
-
-    socket.on('userLoggedIn', ({ userId }) => {
-        console.log(`User ${userId} has logged in`);
-        // Handle user-specific logic here
-    });
-
-
-    socket.on('disconnect', () => {
-        console.log('Client disconnected');
-    });
-});
+initSocket(server);
 
 dbConnect.query("SELECT 1").then(()=>{
     console.log("Database connected");

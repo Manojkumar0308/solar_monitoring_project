@@ -1,7 +1,7 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+const { emitLogin } = require('../socket');
 const createUser = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
@@ -59,7 +59,9 @@ const userLogin = async (req, res) => {
 
     try {
         const [rows] = await db.query('SELECT * FROM user WHERE email = ?', [email]); // Selecting all user info
-        if (rows.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
+        if (rows.length === 0){
+            return res.status(401).json({ error: 'Invalid credentials' });
+        } 
 
         const user = rows[0];
         const isMatch = await bcrypt.compare(password, user.password);
@@ -71,11 +73,12 @@ const userLogin = async (req, res) => {
 
         const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
         console.log('userId',user.id)
-        req.app.io.emit('userLoggedIn',  user.id);
+        
+       
         // Remove password from user object before sending response
         delete user.password;
        
-
+    emitLogin( { id: user.id, username: user.email });
         return res.status(200).json({ message: 'Login successful', token, user });
        
     } catch (error) {

@@ -3,54 +3,249 @@
 <head>
   <meta charset="UTF-8">
   <title>Login</title>
-</head>
-<body>
-  <form id="dataForm" onsubmit="event.preventDefault(); fetchData();">
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required><br><br>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required><br><br>
-    <button type="submit">Login</button>
-  </form>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
-  <!-- Include Socket.io client library -->
-  <script src="/socket.io/socket.io.js"></script>
-  <!-- <script src="https://cdnjs.com/libraries/socket.io"></script> -->
- 
-
-  <script>
-
-    // Handle successful login
-    async function fetchData() {
-      try {
-        const email = document.querySelector('#email').value;
-        const password = document.querySelector('#password').value;
-
-        const response = await fetch('http://localhost:3000/api/users/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          localStorage.setItem('userId', JSON.stringify(data.user.id));
-         // Connect to Socket.io server
-        
-          
-          
-
-          alert('Login successful');
-        } else {
-          alert(data.error || 'Error logging in');
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
+    body {
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      margin: 0;
+      overflow: hidden;
+    }
+    .login-container {
+      display: flex;
+      flex-direction: row;
+      width: 900px;
+      height: 600px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      animation: fadeInUp 1s ease-in-out forwards;
+    }
+    .login-form {
+      flex: 1;
+      padding: 50px;
+    }
+    .login-form h2 {
+      margin-bottom: 30px;
+      font-size: 28px;
+      text-align: center;
+      color: #333;
+    }
+    .login-form label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+    .fancy-input {
+      position: relative;
+      margin-bottom: 30px;
+    }
+    .fancy-input input {
+      width: 100%;
+      padding: 10px 20px 10px 40px; /* Reduced padding */
+      border: 1px solid #ccc;
+      border-radius: 30px;
+      box-sizing: border-box;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      font-size: 16px;
+    }
+    .fancy-input input:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+    .fancy-input i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #007bff;
+      transition: color 0.3s;
+    }
+    .fancy-input input:focus + i {
+      color: #0056b3;
+    }
+    .login-form button {
+      width: 100%;
+      padding: 15px;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      font-size: 18px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .login-form button:hover {
+      background-color: #0056b3;
+    }
+    .error-message {
+      color: red;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #007bff;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      display: none;
+      margin: 20px auto;
+    }
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    .info-section {
+      flex: 1;
+      background: #6a11cb;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border-radius: 0 10px 10px 0;
+      padding: 20px;
+    }
+    .info-section h3 {
+      margin: 0;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    .info-section p {
+      margin: 5px 0;
+    }
+    .info-section img {
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      margin-bottom: 10px;
+    }
+    .info-section .stats {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      margin-top: 20px;
+    }
+    .info-section .stat {
+      text-align: center;
+    }
+    .info-section .stat h4 {
+      margin: 0;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-form">
+      <h2>Login</h2>
+      <form id="dataForm" onsubmit="event.preventDefault(); fetchData();">
+        <div class="fancy-input">
+          <input type="email" id="email" name="email" required placeholder="Email">
+          <i class="fas fa-envelope"></i>
+        </div>
+        <div class="fancy-input">
+          <input type="password" id="password" name="password" required placeholder="Password">
+          <i class="fas fa-lock"></i>
+        </div>
+        <div class="error-message" id="error-message"></div>
+        <button type="submit">Login</button>
+        <div class="loader" id="loader"></div>
+      </form>
+    </div>
+    <div class="info-section">
+      <img src="https://via.placeholder.com/100" alt="User Image">
+      <h3>Turn your ideas into reality</h3>
+      <p>Consistent quality and experience across all platforms and devices.</p>
+      <div class="stats">
+        <div class="stat">
+          <h4>$162,751</h4>
+          <p>Last year's sales</p>
+        </div>
+        <div class="stat">
+          <h4>172,832</h4>
+          <p>Points</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  
-  </script>
+  <!-- Include Font Awesome for icons -->
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <!-- Include Socket.io client library -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <!-- Previous login page HTML and CSS code remains unchanged -->
+
+<script>
+  const socket = io();
+
+  // Handle successful login
+  async function fetchData() {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'block';
+
+    try {
+      const email = document.querySelector('#email').value;
+      const password = document.querySelector('#password').value;
+
+      const response = await fetch('http://localhost:3000/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+      const errorMessage = document.getElementById('error-message');
+
+      if (response.ok) {
+        localStorage.setItem('userId', JSON.stringify(data.user.id));
+        localStorage.setItem('userEmail', email);
+        socket.connect();
+        alert('Login successful');
+        errorMessage.style.display = 'none';
+        window.location.href = 'dashboard.html'; // Redirect to dashboard
+      } else {
+        errorMessage.textContent = data.error || 'Error logging in';
+        errorMessage.style.display = 'block';
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      document.getElementById('error-message').textContent = 'An error occurred. Please try again.';
+      document.getElementById('error-message').style.display = 'block';
+    } finally {
+      loader.style.display = 'none';
+    }
+  }
+
+  socket.on('login', (data) => {
+    console.log('User logged in:', data);
+  });
+</script>
+
 </body>
 </html>
