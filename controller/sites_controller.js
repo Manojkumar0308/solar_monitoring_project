@@ -23,41 +23,53 @@ const addSites = async (req, res) => {
                 message: "Invalid email format"
             });
         }
+ // Check if the email exists in the user table and retrieve the id
+ const [userRows] = await db.query('SELECT id FROM user WHERE email = ?', [c_email]);
 
-        // Construct the SQL query for inserting new site data
-        const insertQuery = `
-            INSERT INTO clientList (sitename, c_email, latitude, longitude, created_at)
-            VALUES (?, ?, ?, ?, NOW())
-        `;
+ if (userRows.length === 0) {
+     return res.status(404).send({
+         success: false,
+         message: "Email not found in user table"
+     });
+ }
 
-        // Execute the SQL query
-        const [result] = await db.query(insertQuery, [sitename, c_email, latitude, longitude]);
+ // Retrieve the user id from the user table
+ const userId = userRows[0].id;
 
-        // Fetch the newly inserted site details
-        const [rows] = await db.query('SELECT * FROM clientList WHERE c_email = ?', [c_email]);
+ // Construct the SQL query for inserting new site data
+ const insertQuery = `
+     INSERT INTO clientList (sitename, c_email, latitude, longitude, user_id, created_at)
+     VALUES (?, ?, ?, ?, ?, NOW())
+ `;
 
-        if (rows.length === 0) {
-            return res.status(404).send({
-                success: false,
-                message: 'Site not found after insertion'
-            });
-        }
+ // Execute the SQL query
+ const [result] = await db.query(insertQuery, [sitename, c_email, latitude, longitude, userId]);
 
-        const addedSite = rows[0];
-        
-        res.status(200).send({
-            success: true,
-            message: "Site added successfully",
-            site: addedSite
-        });
-    } catch (error) {
-        console.error('Error adding site:', error); // Improved error logging
-        res.status(500).send({
-            success: false,
-            message: "Something went wrong",
-            error: error.message
-        });
-    }
+ // Fetch the newly inserted site details
+ const [rows] = await db.query('SELECT * FROM clientList WHERE c_email = ?', [c_email]);
+
+ if (rows.length === 0) {
+     return res.status(404).send({
+         success: false,
+         message: 'Site not found after insertion'
+     });
+ }
+
+ const addedSite = rows[0];
+ 
+ res.status(200).send({
+     success: true,
+     message: "Site added successfully",
+     site: addedSite
+ });
+} catch (error) {
+ console.error('Error adding site:', error); // Improved error logging
+ res.status(500).send({
+     success: false,
+     message: "Something went wrong",
+     error: error.message
+ });
+}
 };
 
 const getSitesList = async (req, res) => {

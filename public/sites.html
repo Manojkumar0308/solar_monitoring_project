@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sites List</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #090a0a;
+            margin-bottom: 20px;
+        }
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .stat-box1 {
+            background-color: #1a7907;
+            color: white;
+            flex: 1;
+            margin: 0 10px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .stat-box2 {
+            background-color: #c20c0c;
+            color: white;
+            flex: 1;
+            margin: 0 10px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .stat-box3 {
+            background-color: #c2a10c;
+            color: white;
+            flex: 1;
+            margin: 0 10px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .stat-box h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+        .charts-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .chart {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            margin: 0 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #0d0e0f;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sites List</h1>
+        
+        <!-- Active Sites Row -->
+        <div class="stats-row">
+            <div class="stat-box1">
+                <h2>Total Sites: 15</h2>
+            </div>
+            <div class="stat-box2">
+                <h2>Active Sites: 12</h2>
+            </div>
+            <div class="stat-box3">
+                <h2>Deactivated Sites: 3</h2>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+            <div class="chart">
+                <canvas id="barChart"></canvas>
+            </div>
+            <div class="chart">
+                <canvas id="lineChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Sites List Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Site Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="siteList">
+                <!-- Sites will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Data for the charts (dummy data for now)
+        const barChartData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            datasets: [{
+                label: 'Sales',
+                backgroundColor: '#007BFF',
+                data: [30, 40, 20, 50, 60, 70, 90]
+            }]
+        };
+
+        const lineChartData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            datasets: [{
+                label: 'Total Sites',
+                borderColor: '#1a7907',
+                data: [5, 10, 15, 20, 25, 30, 35],
+                fill: false
+            }]
+        };
+
+        // Render Bar Chart
+        const barChart = new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: barChartData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Render Line Chart
+        const lineChart = new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: lineChartData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Fetch the sites from the API and populate the table
+        fetch('http://localhost:3000/api/sites/getAllSites')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const siteList = document.getElementById('siteList');
+            data.sites.forEach(site => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${site.sitename}</td>
+                    <td>${site.c_email}</td>
+                    <td>${site.status}</td>
+                `;
+                row.addEventListener('click', () => {
+                    window.location.href = `siteData.html?userId=${site.user_id}`;
+                });
+                siteList.appendChild(row);
+            });
+        } else {
+            console.error('Failed to load sites:', data.message);
+        }
+    })
+    .catch(error => console.error('Error fetching sites:', error));
+
+    </script>
+</body>
+</html>

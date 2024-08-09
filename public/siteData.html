@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Data</title>
+</head>
+<body>
+    <h1>Site Real-Time Data</h1>
+    <div id="realTimeData">
+        <!-- Real-time data will be displayed here -->
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Retrieve the user ID from the query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
+        localStorage.setItem('selectedUserId', userId);
+
+        const socket = io.connect();
+        const storedUserId = localStorage.getItem('selectedUserId');
+
+        socket.on('sendSensorData', (data) => {
+            // Display data only if the user ID matches the stored user ID
+            if (data.userId == storedUserId) {
+                const realTimeDataDiv = document.getElementById('realTimeData');
+                realTimeDataDiv.innerHTML = `
+                    <p>Temperature: ${data.temperature}</p>
+                    <p>Humidity: ${data.humidity}</p>
+                    <p>Current: ${data.current}</p>
+                    <p>Voltage: ${data.voltage}</p>
+                    <p>Sent at: ${data.sendingTime}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

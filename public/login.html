@@ -223,12 +223,19 @@
       const errorMessage = document.getElementById('error-message');
 
       if (response.ok) {
+
+        const userType = data.user.usertype
         localStorage.setItem('userId', JSON.stringify(data.user.id));
         localStorage.setItem('userEmail', email);
         // socket.connect();
         alert('Login successful');
         errorMessage.style.display = 'none';
-        window.location.href = 'dashboard.html'; // Redirect to dashboard
+        if(userType=='admin'){
+          window.location.href = 'sites.html';
+        }else{
+          window.location.href = 'dashboard.html'; // Redirect to dashboard
+        }
+       
       } else {
         errorMessage.textContent = data.error || 'Error logging in';
         errorMessage.style.display = 'block';
